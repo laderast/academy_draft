@@ -1,39 +1,41 @@
 ---
-title: "Using RMarkdown"
+title: "Batch Processing on DNAnexus"
 teaching: 10
 exercises: 2
 ---
 
 :::::::::::::::::::::::::::::::::::::: questions 
 
-- How do you write a lesson using R Markdown and `{sandpaper}`?
+- How do you run batch jobs on the DNAnexus Platform?
 
 ::::::::::::::::::::::::::::::::::::::::::::::::
 
 ::::::::::::::::::::::::::::::::::::: objectives
 
-- Explain how to use markdown with the new lesson template
-- Demonstrate how to include pieces of code, figures, and nested challenge blocks
+- Explain a basic recipe for batch processing on the DNAnexus Platform
+- Demonstrate the utility of `dx find data`
+- Demonstrate `xargs` and use it to process multiple files.
+- Demonstrate `dx run` and use it to process BAM files with the Swiss Army Knife App
 
 ::::::::::::::::::::::::::::::::::::::::::::::::
 
 ## Introduction
 
-This is a lesson created via The Carpentries Workbench. It is written in
-[Pandoc-flavored Markdown](https://pandoc.org/MANUAL.txt) for static files and
-[R Markdown][r-markdown] for dynamic files that can render code into output. 
-Please refer to the [Introduction to The Carpentries 
-Workbench](https://carpentries.github.io/sandpaper-docs/) for full documentation.
+```{r echo=FALSE}
+vembedr::embed_youtube("MBFXgfzYCjw")
+```
 
-What you need to know is that there are three sections required for a valid
-Carpentries lesson template:
+In this section, we'll introduce the basic recipe for batch processing multiple files on the DNAnexus Platform.
 
- 1. `questions` are displayed at the beginning of the episode to prime the
-    learner for the content.
- 2. `objectives` are the learning objectives for an episode displayed with
-    the questions.
- 3. `keypoints` are displayed at the end of the episode to reinforce the
-    objectives.
+![The basic recipe for Batch Processing](fig/mermaid-figure-6.png)
+The code we start with
+
+```{r eval=FALSE}
+dx find data --brief --name *.bam | \
+  xargs -I% sh -c \ 
+  'dx run app-swiss-army-knife \
+   -iin="%" -icmd="sambamba index \${in_name}"'
+```
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: instructor
 
@@ -62,35 +64,36 @@ paste("This", "new", "lesson", "looks", "good")
 
 :::::::::::::::::::::::::::::::::
 
+:::::::::::::::::::::::::::::::::::::
 
-## Challenge 2: how do you nest solutions within challenge blocks?
+## `dx find data`
 
-:::::::::::::::::::::::: solution 
-
-You can add a line with at least three colons and a `solution` tag.
-
-:::::::::::::::::::::::::::::::::
-::::::::::::::::::::::::::::::::::::::::::::::::
-
-## Figures
-
-You can also include figures generated from R Markdown:
-
-```{r pyramid, fig.alt = "pie chart illusion of a pyramid", fig.cap = "Sun arise each and every morning"}
-pie(
-  c(Sky = 78, "Sunny side of pyramid" = 17, "Shady side of pyramid" = 5), 
-  init.angle = 315, 
-  col = c("deepskyblue", "yellow", "yellow3"), 
-  border = FALSE
-)
+```{r}
+vembedr::embed_youtube("BuIPCTj9gjs")
 ```
 
-Or you can use standard markdown for static figures with the following syntax:
+We can use `dx find data` to generate lists of file ids to process using the `--brief` option.
 
-`![optional caption that appears below the figure](figure url){alt='alt text for
-accessibility purposes'}`
+For example:
 
-![You belong in The Carpentries!](https://raw.githubusercontent.com/carpentries/logo/master/Badge_Carpentries.svg){alt='Blue Carpentries hex person logo with no text.'}
+```{r eval=FALSE}
+dx find data --brief --name *.bam
+```
+
+Produces the output:
+
+```
+project-GJ496B00FZfxPV5VG36FybvY:file-BZ9YGzj0x05b66kqQv51011q
+project-GJ496B00FZfxPV5VG36FybvY:file-BZ9YGpj0x05xKxZ42QPqZkJY
+project-GJ496B00FZfxPV5VG36FybvY:file-BQbXVY0093Jk1KVY1J082y7v
+project-GJ496B00FZfxPV5VG36FybvY:file-FpQKQk00FgkGV3Vb3jJ8xqGV
+```
+
+## `xargs`
+
+```{r echo=FALSE}
+vembedr::embed_youtube("KUHY21QCp04")
+```
 
 ::::::::::::::::::::::::::::::::::::: callout
 
@@ -115,10 +118,8 @@ Cool, right?
 
 ::::::::::::::::::::::::::::::::::::: keypoints 
 
-- Use `.md` files for episodes when you want static content
-- Use `.Rmd` files for episodes when you need to generate output
-- Run `sandpaper::check_lesson()` to identify any issues with your lesson
-- Run `sandpaper::build_lesson()` to preview your lesson locally
+- Pipe the output of `dx find data --brief` into `xargs` to process multiple files on the platform
+- Use `dx run` using placeholders to process individual files in a run
 
 ::::::::::::::::::::::::::::::::::::::::::::::::
 
